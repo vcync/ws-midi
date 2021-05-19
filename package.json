@@ -1,0 +1,17 @@
+{
+  "name": "ws-midi",
+  "version": "1.0.0",
+  "description": "websocket midi",
+  "main": "index.js",
+  "author": "vcync",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "midi": "^1.0.4",
+    "terminal-kit": "^2.1.2",
+    "ws": "^7.4.5"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
