@@ -13,7 +13,7 @@ module.exports = () => {
 
   // Get the name of a specified input port.
   const deviceNames = [];
-  for(let i=0; i < numPorts; i++) {
+  for(let i = 0; i < numPorts; i++) {
     const name = input.getPortName(i);
 
     if (name !== VIRTUAL_MIDI_DEVICE_NAME) {
