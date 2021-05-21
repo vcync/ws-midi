@@ -1,6 +1,8 @@
 # ws-midi
 > Send MIDI using WebSocket communication
 
+<p align="center"><img alt="Animated image of two terminals demonstrating the usage of ws-midi" src="https://github.com/vcync/ws-midi/raw/main/images/ws-midi.gif" width="100%" /></p>
+
 ## Usage
 
 * Clone the repo
