@@ -9,15 +9,31 @@ module.exports = () => {
   const input = new midi.Input();
 
   // Count the available input ports.
-  const numPorts = input.getPortCount();
+  const numInputPorts = input.getPortCount();
 
   // Get the name of a specified input port.
-  const deviceNames = [];
-  for(let i = 0; i < numPorts; i++) {
+  const inputDeviceNames = [];
+  for(let i = 0; i < numInputPorts; i++) {
     const name = input.getPortName(i);
 
     if (name !== VIRTUAL_MIDI_DEVICE_NAME) {
-      deviceNames.push(name);
+      inputDeviceNames.push(name);
+    }
+  }
+
+  // Set up a new ouput.
+  const output = new midi.Output();
+
+  // Count the available ouput ports.
+  const numOutputPorts = output.getPortCount();
+
+  // Get the name of a specified input port.
+  const outputDeviceNames = [];
+  for(let i = 0; i < numOutputPorts; i++) {
+    const name = output.getPortName(i);
+
+    if (name !== VIRTUAL_MIDI_DEVICE_NAME) {
+      outputDeviceNames.push(name);
     }
   }
 
@@ -34,9 +50,9 @@ module.exports = () => {
       term.clear();
       term.cyan(`opened websocket connection to ${ip}:${PORT}\n\n`);
 
-      term.cyan(`please pick a midi device to send to ${ip}:${PORT}\n`);
+      term.cyan(`please pick a midi input device to send to ${ip}:${PORT}\n`);
 
-      term.singleColumnMenu(deviceNames, {
+      term.singleColumnMenu(inputDeviceNames, {
         cancelable: true,
       }, (error, response) => {
         term.clear();
@@ -48,11 +64,32 @@ module.exports = () => {
         //   response.y
         // );
 
-        input.openPort(response.selectedIndex);
-        // Configure a callback.
-        input.on('message', (deltaTime, message) => {
-          console.log(message);
-          ws.send(JSON.stringify(message));
+        const midiInputDeviceId = response.selectedIndex;
+
+        term.cyan(`opened websocket connection to ${ip}:${PORT}\n\n`);
+
+        term.cyan(`please pick a midi output device to route locally`);
+
+        term.singleColumnMenu(outputDeviceNames, {
+          cancelable: true,
+        }, (error, response) => {
+          term.clear();
+          // term('\n').eraseLineAfter.green(
+          //   "#%s selected: %s (%s,%s)\n",
+          //   response.selectedIndex,
+          //   response.selectedText,
+          //   response.x,
+          //   response.y
+          // );
+
+          input.openPort(midiInputDeviceId);
+          output.openPort(response.selectedIndex);
+          // Configure a callback.
+          input.on('message', (deltaTime, message) => {
+            console.log(message);
+            ws.send(JSON.stringify(message));
+            output.sendMessage(message);
+          });
         });
       });
     });
