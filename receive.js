@@ -2,7 +2,10 @@ const term = require('terminal-kit').terminal;
 const midi = require('midi');
 const WebSocket = require('ws');
 const { VIRTUAL_MIDI_DEVICE_NAME, PORT } = require('./constants.js');
-let ip;
+
+function heartbeat() {
+  this.isAlive = true;
+}
 
 module.exports = () => {
   term.clear();
@@ -45,12 +48,29 @@ module.exports = () => {
     
     const wss = new WebSocket.Server({ port: PORT });
 
+    const interval = setInterval(function ping() {
+      wss.clients.forEach(function each(ws) {
+        if (ws.isAlive === false) return ws.terminate();
+    
+        ws.isAlive = false;
+        ws.ping();
+      });
+    }, 10 * 1000);
+    
+    wss.on('close', function close() {
+      clearInterval(interval);
+    });
+
     wss.on('listening', function listening() {
       term.black.bgGreen(`websocket server listening on ${PORT}\n`);
     });
   
     wss.on('connection', function connection(ws) {
       console.log('new connection');
+
+      ws.isAlive = true;
+      ws.on('error', console.error);
+      ws.on('pong', heartbeat);
   
       ws.on('message', function incoming(wsMessage) {
         const message = JSON.parse(wsMessage)
