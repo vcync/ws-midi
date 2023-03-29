@@ -2,7 +2,7 @@ const term = require('terminal-kit').terminal;
 const midi = require('midi');
 const WebSocket = require('ws');
 const { VIRTUAL_MIDI_DEVICE_NAME, PORT } = require('./constants.js');
-let ip;
+let host;
 
 module.exports = () => {
   // Set up a new input.
@@ -37,20 +37,20 @@ module.exports = () => {
     }
   }
 
-  term.cyan(`please enter the IP of the recipient\n`);
+  term.cyan(`please enter the HOST of the recipient in the format ws://host[:port] or wss://host[:port]\n`);
 
   term.inputField((error, response) => {
     term.clear();
-    ip = response;
+    host = response;
 
-    term.cyan(`opening websocket connection to ${ip}:${PORT}\n`);
-    const ws = new WebSocket(`ws://${ip}:${PORT}`);
+    term.cyan(`opening websocket connection to ${host}\n`);
+    const ws = new WebSocket(`${host}`);
 
     ws.on('open', () => {
       term.clear();
-      term.cyan(`opened websocket connection to ${ip}:${PORT}\n\n`);
+      term.cyan(`opened websocket connection to ${host}\n\n`);
 
-      term.cyan(`please pick a midi input device to send to ${ip}:${PORT}\n`);
+      term.cyan(`please pick a midi input device to send to ${host}\n`);
 
       term.singleColumnMenu(inputDeviceNames, {
         cancelable: true,
@@ -66,7 +66,7 @@ module.exports = () => {
 
         const midiInputDeviceId = response.selectedIndex;
 
-        term.cyan(`opened websocket connection to ${ip}:${PORT}\n\n`);
+        term.cyan(`opened websocket connection to ${host}\n\n`);
 
         term.cyan(`please pick a midi output device to route locally`);
 
